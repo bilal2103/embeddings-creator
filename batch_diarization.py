@@ -1,9 +1,7 @@
 import os
 import json
-import glob
 from pathlib import Path
-from datetime import datetime
-from typing import List, Dict, Any
+from typing import List
 from DiarizationService import Diarization
 from pyannote.core import Segment
 from pyannote.audio import Inference, Model
@@ -26,8 +24,6 @@ class BatchDiarizer:
         self.model = Model.from_pretrained("pyannote/embedding", 
                               use_auth_token=os.getenv("HF_EMBEDDING_TOKEN"))
         self.inference = Inference(self.model, window="whole")
-        self.abdullahEmbedding = json.load(open("abdullah_embedding.json"))
-        self.fatimaEmbedding = json.load(open("fatima_embedding.json"))
     
     def get_audio_files(self, folder_path: str) -> List[str]:
         folder = Path(folder_path)
@@ -94,9 +90,6 @@ class BatchDiarizer:
             try:
                 print(f"\n--- File {i}/{len(audio_files)} ---")
                 speakerEmbeddings = self.process_single_file(audio_file)
-                for key, value in speakerEmbeddings.items():
-                    print(f"Similarity between speaker {key} and Abdullah: {np.dot(self.abdullahEmbedding, value) / (np.linalg.norm(self.abdullahEmbedding) * np.linalg.norm(value))}")
-                    print(f"Similarity between speaker {key} and Fatima: {np.dot(self.fatimaEmbedding, value) / (np.linalg.norm(self.fatimaEmbedding) * np.linalg.norm(value))}")
             except Exception as e:
                 print(f"❌ Error processing {Path(audio_file).name}: {str(e)}")
                 continue
@@ -104,8 +97,7 @@ class BatchDiarizer:
         print("🚀 Starting batch diarization for all audio files...")
         print("=" * 60)
         
-        self.process_folder("Urdu", "Urdu")
-        self.process_folder("English", "English")
+        self.process_folder("Bangla- Fatimah Shah", "Bangla- Fatimah Shah")
     
 def main():
     try:
